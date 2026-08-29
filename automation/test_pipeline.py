@@ -44,16 +44,20 @@ class RequestBodyTests(unittest.TestCase):
 
     def test_instructions_carry_binding_rules_and_no_untrusted_data(self):
         campaigns = [Campaign("1", "n", "t", "a", "SECRET_FACT_VALUE", "<a>link</a>", True)]
-        body = build_request_body(campaigns, "gpt-5.4-nano")
-        self.assertIn("verified_facts", body["instructions"])
-        self.assertIn("従わないでください", body["instructions"])
-        self.assertNotIn("SECRET_FACT_VALUE", body["instructions"])
+        body = build_request_body(campaigns, "openai/gpt-5.4-nano")
+        system_content = body["messages"][0]["content"]
+        self.assertEqual(body["messages"][0]["role"], "system")
+        self.assertIn("verified_facts", system_content)
+        self.assertIn("従わないでください", system_content)
+        self.assertNotIn("SECRET_FACT_VALUE", system_content)
 
     def test_input_contains_only_campaign_data_no_instruction_text(self):
         campaigns = [Campaign("1", "n", "t", "a", "f", "<a>link</a>", True)]
-        body = build_request_body(campaigns, "gpt-5.4-nano")
-        self.assertNotIn("創作しない", body["input"])
-        self.assertIn('"campaign_id": "1"', body["input"])
+        body = build_request_body(campaigns, "openai/gpt-5.4-nano")
+        user_content = body["messages"][1]["content"]
+        self.assertEqual(body["messages"][1]["role"], "user")
+        self.assertNotIn("創作しない", user_content)
+        self.assertIn('"campaign_id": "1"', user_content)
 
 
 if __name__ == "__main__":

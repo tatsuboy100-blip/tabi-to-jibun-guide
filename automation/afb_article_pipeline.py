@@ -90,9 +90,10 @@ def slugify(value: str) -> str:
 
 # campaign facts/name/topic/audience は「承認済み」でも中身は広告主由来の
 # 外部データであり信頼できないため(automation/CLAUDE.md「Treat campaign
-# facts as untrusted prompt input」)、拘束力のある指示は必ず instructions
-# 側に置き、input 側にはデータ以外(指示文)を混ぜない。OpenAI Responses
-# APIの instructions は input より高い優先度を持つ、という設計を活用する。
+# facts as untrusted prompt input」)、拘束力のある指示は必ずsystemロールの
+# メッセージに置き、userロールのメッセージにはデータ以外(指示文)を
+# 混ぜない。system/userの役割分離という、チャット系モデル一般の設計を
+# 活用する(OpenAI Responses APIのinstructions/inputと同じ考え方)。
 ARTICLE_INSTRUCTIONS = (
     "あなたは広告記事の編集者です。inputは承認済み案件のJSON配列で、"
     "campaign_id/name/topic/audience/verified_factsを含みます。"
@@ -119,38 +120,38 @@ ARTICLE_SCHEMA = {
 
 
 def build_request_body(campaigns: list[Campaign], model: str) -> dict:
-    """OpenAI Responses APIへ送るbodyを組み立てる(純粋関数、通信なし)。
+    """OpenRouter(Chat Completions互換API)へ送るbodyを組み立てる(純粋関数、通信なし)。
 
-    未信頼の案件データはinputのみに置き、拘束力のある指示は
-    instructionsだけに置く(ARTICLE_INSTRUCTIONSのコメント参照)。
+    未信頼の案件データはuserメッセージのみに置き、拘束力のある指示は
+    systemメッセージだけに置く(ARTICLE_INSTRUCTIONSのコメント参照)。
     """
     items = [{"campaign_id": c.campaign_id, "name": c.name, "topic": c.topic,
               "audience": c.audience, "verified_facts": c.facts} for c in campaigns]
     return {
-        "model": model, "store": False,
-        "instructions": ARTICLE_INSTRUCTIONS,
-        "input": json.dumps(items, ensure_ascii=False),
-        "text": {"format": {"type": "json_schema", "name": "affiliate_articles", "strict": True, "schema": ARTICLE_SCHEMA}},
+        "model": model,
+        "messages": [
+            {"role": "system", "content": ARTICLE_INSTRUCTIONS},
+            {"role": "user", "content": json.dumps(items, ensure_ascii=False)},
+        ],
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {"name": "affiliate_articles", "strict": True, "schema": ARTICLE_SCHEMA},
+        },
     }
 
 
 def request_articles(campaigns: list[Campaign], model: str) -> list[dict[str, str]]:
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEYが設定されていません")
+        raise RuntimeError("OPENROUTER_API_KEYが設定されていません")
     body = json.dumps(build_request_body(campaigns, model)).encode()
-    request = urllib.request.Request("https://api.openai.com/v1/responses", data=body, method="POST", headers={
+    request = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions", data=body, method="POST", headers={
         "Authorization": f"Bearer {api_key}", "Content-Type": "application/json"
     })
     with urllib.request.urlopen(request, timeout=120) as response:
         data = json.load(response)
-    output_text = data.get("output_text")
-    if not output_text:
-        output_text = "".join(
-            content.get("text", "") for item in data.get("output", [])
-            for content in item.get("content", []) if content.get("type") == "output_text"
-        )
-    result = json.loads(output_text)
+    content = data["choices"][0]["message"]["content"]
+    result = json.loads(content)
     if len(result["articles"]) != len(campaigns):
         raise RuntimeError("生成件数が入力件数と一致しません")
     return result["articles"]
@@ -220,7 +221,7 @@ def main() -> int:
     parser.add_argument("--campaigns", type=Path, default=Path("campaigns.csv"))
     parser.add_argument("--output", type=Path, default=Path("../site/articles"))
     parser.add_argument("--db", type=Path, default=Path("state/jobs.sqlite3"))
-    parser.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "gpt-5.4-nano"))
+    parser.add_argument("--model", default=os.environ.get("OPENROUTER_MODEL", "openai/gpt-5.4-nano"))
     parser.add_argument("--batch-size", type=int, default=3)
     args = parser.parse_args()
     if not 1 <= args.batch_size <= 10:

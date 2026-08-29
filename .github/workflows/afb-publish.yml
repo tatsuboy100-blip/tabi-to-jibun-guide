@@ -33,7 +33,7 @@ jobs:
 
       - name: Generate articles from approved campaigns
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           python3 automation/afb_article_pipeline.py \
             --campaigns automation/campaigns.csv \
