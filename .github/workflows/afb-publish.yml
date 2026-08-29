@@ -1,0 +1,55 @@
+name: AFB auto-publish
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: afb-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Configure bot git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate articles from approved campaigns
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python3 automation/afb_article_pipeline.py \
+            --campaigns automation/campaigns.csv \
+            --output site/articles \
+            --db automation/state/jobs.sqlite3
+
+      - name: Update article index
+        run: python3 automation/update_index.py --index site/index.html --articles-dir site/articles
+
+      - name: Commit and push if anything changed
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Nothing to publish."
+            exit 0
+          fi
+          git add -A
+          git commit -m "afb: auto-publish generated article(s)"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

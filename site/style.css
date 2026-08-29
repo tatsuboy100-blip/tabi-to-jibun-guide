@@ -1,0 +1,140 @@
+:root {
+  --teal: #3e5c58;
+  --teal-dark: #263e3b;
+  --paper: #f6f1e8;
+  --ink: #2c2622;
+  --muted: #7a6f63;
+  --line: #e4d9c8;
+  --rose: #c1685a;
+  --rose-dark: #a35348;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "游ゴシック体", "Noto Sans JP", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.9;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+header.site {
+  background: var(--teal-dark);
+  color: #fff;
+  padding: 18px 0;
+}
+header.site .wrap { display: flex; align-items: center; justify-content: space-between; }
+header.site a.brand {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.02em;
+}
+header.site a.brand span { color: var(--rose); }
+header.site nav a {
+  color: #d9d2c6;
+  text-decoration: none;
+  font-size: 14px;
+  margin-left: 18px;
+}
+main { padding: 48px 0 80px; }
+.eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--rose);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+h1 {
+  font-family: "Hiragino Mincho ProN", "YuMincho", "游明朝体", "Noto Serif JP", serif;
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1.5;
+  margin: 0 0 18px;
+  color: var(--teal-dark);
+}
+h2 {
+  font-family: "Hiragino Mincho ProN", "YuMincho", "游明朝体", "Noto Serif JP", serif;
+  font-weight: 500;
+  font-size: 23px;
+  line-height: 1.6;
+  margin: 42px 0 14px;
+  color: var(--teal-dark);
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 8px;
+}
+h3 {
+  font-family: "Hiragino Mincho ProN", "YuMincho", "游明朝体", serif;
+  font-weight: 500;
+  font-size: 18px;
+  margin: 26px 0 10px;
+  color: var(--teal-dark);
+}
+p { margin: 0 0 16px; font-size: 16px; color: var(--ink); }
+.meta { color: var(--muted); font-size: 14px; margin-bottom: 34px; }
+ul, ol { padding-left: 22px; }
+li { margin-bottom: 8px; }
+table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 15px; }
+th, td { border: 1px solid var(--line); padding: 10px 12px; text-align: left; }
+th { background: #eee6d6; color: var(--teal-dark); }
+.callout {
+  background: #eee6d6;
+  border-left: 4px solid var(--teal);
+  padding: 16px 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+}
+.cta {
+  display: inline-block;
+  background: var(--rose);
+  color: #fff !important;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 12px 22px;
+  border-radius: 8px;
+  margin: 8px 0 20px;
+}
+.cta:hover { background: var(--rose-dark); }
+.cta-note {
+  font-size: 12px;
+  color: var(--muted);
+  margin: -12px 0 20px;
+}
+.faq-item { border-top: 1px solid var(--line); padding: 16px 0; }
+.faq-item:last-child { border-bottom: 1px solid var(--line); }
+.faq-item h3 { margin: 0 0 8px; }
+.article-card {
+  display: block;
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+.article-card:hover { box-shadow: 0 8px 24px rgba(38,62,59,0.12); transform: translateY(-1px); }
+.article-card h2 { margin: 0 0 8px; border: 0; padding: 0; font-size: 19px; }
+.article-card p { margin: 0; color: var(--muted); font-size: 14px; }
+footer.site {
+  background: var(--teal-dark);
+  color: #cbd3d0;
+  padding: 30px 0;
+  font-size: 13px;
+  margin-top: 60px;
+}
+footer.site a { color: #fff; }
+.disclosure {
+  font-size: 12px;
+  color: var(--muted);
+  background: #eee6d6;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 24px 0;
+}
+.crosslinks { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
+.crosslinks a { color: var(--teal); }
