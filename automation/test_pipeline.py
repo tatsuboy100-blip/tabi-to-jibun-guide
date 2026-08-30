@@ -1,3 +1,4 @@
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -19,6 +20,18 @@ class PipelineTests(unittest.TestCase):
         self.assertIn('href="../index.html"', page)
         self.assertIn("旅と、じぶん。", page)
         self.assertIn("無断転載", page)
+
+    def test_rendered_css_classes_are_defined_in_stylesheet(self):
+        # renderが出力するクラスがstyle.cssに無いと、広告開示が本文と同じ見た目になり
+        # 「明瞭に表示」できない。過去に両クラスとも未定義のまま公開直前だった。
+        campaign = Campaign("1", "案件", "topic", "audience", "fact", "<a>link</a>", True)
+        page = render({"title": "題名", "description": "説明", "body_html": "<p>本文</p>"}, campaign)
+        stylesheet = (Path(__file__).resolve().parent.parent / "site" / "style.css").read_text(encoding="utf-8")
+        for css_class in set(re.findall(r'class="([a-z-]+)"', page)):
+            # 単なるin判定だと .foo が .foo-bar にも一致してしまうので、
+            # セレクタとして終端している(直後が英数字・ハイフンでない)ことまで見る。
+            selector = re.compile(r'\.' + re.escape(css_class) + r'(?![\w-])')
+            self.assertRegex(stylesheet, selector, f"{css_class} がstyle.cssに未定義")
 
     def test_job_key_changes_when_verified_facts_change(self):
         a = Campaign("1", "x", "t", "a", "old", "link", True)

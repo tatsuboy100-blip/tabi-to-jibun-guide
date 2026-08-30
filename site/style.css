@@ -97,6 +97,14 @@ th { background: #eee6d6; color: var(--teal-dark); }
   margin: 8px 0 20px;
 }
 .cta:hover { background: var(--rose-dark); }
+.cta-fallback {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 20px 12px;
+  margin: 8px 0 20px;
+}
+.cta-fallback ul { margin: 8px 0; }
 .cta-note {
   font-size: 12px;
   color: var(--muted);
@@ -138,3 +146,37 @@ footer.site a { color: #fff; }
 }
 .crosslinks { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
 .crosslinks a { color: var(--teal); }
+
+/* 自動生成記事(automation/afb_article_pipeline.py の render())が使うクラス。
+   広告表記は本文と見分けがつかないと開示の意味がないので、明確に区別させる。 */
+.affiliate-disclosure {
+  background: #fff4e6;
+  border: 1px solid #f0c894;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.affiliate-offer {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 20px 16px;
+  margin: 28px 0 20px;
+}
+.affiliate-offer h2 {
+  font-size: 18px;
+  margin: 16px 0 12px;
+}
+.affiliate-offer a {
+  display: inline-block;
+  background: var(--rose);
+  color: #fff !important;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 12px 22px;
+  border-radius: 8px;
+  margin: 4px 0;
+}
+.affiliate-offer a:hover { background: var(--rose-dark); }
